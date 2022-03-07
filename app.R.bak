@@ -92,7 +92,7 @@ ui <- dashboardPage(header, sidebar, body)
 ## Preload data
 
 train_RFS_model_shiny <- 
-  reactive({get(load("PFS_model.Rdata"))})
+  reactive({get(load("RFS_model.Rdata"))})
 
 train_OS_model_shiny <- 
   reactive({get(load("OS_model.Rdata"))})
