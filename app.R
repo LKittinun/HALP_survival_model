@@ -4,9 +4,7 @@ library(shinyvalidate)
 library(survival)
 library(dplyr)
 library(ggplot2)
-library(plotly)
-
-# Helper: Kaplan-Meier step plot (replaces ggsurvplot) --------------------
+# Helper: Kaplan-Meier step plot -----------------------------------------
 
 surv_plot <- function(fit, vline, labels = c("Case", "Ref.")) {
   group_var <- rep(labels, as.integer(fit$strata))
@@ -15,7 +13,7 @@ surv_plot <- function(fit, vline, labels = c("Case", "Ref.")) {
     surv  = fit$surv,
     group = factor(group_var, levels = labels)
   )
-  p <- ggplot(surv_data, aes(x = time, y = surv, color = group, linetype = group)) +
+  ggplot(surv_data, aes(x = time, y = surv, color = group, linetype = group)) +
     geom_step(linewidth = 0.8) +
     geom_vline(xintercept = vline, linetype = "dashed", color = "gray40") +
     scale_y_continuous(limits = c(0, 1),
@@ -27,7 +25,6 @@ surv_plot <- function(fit, vline, labels = c("Case", "Ref.")) {
          color = NULL, linetype = NULL) +
     theme_classic(base_size = 13) +
     theme(legend.position = "bottom")
-  ggplotly(p) |> layout(legend = list(orientation = "h", x = 0.3, y = -0.2))
 }
 
 # Load models once at startup ---------------------------------------------
@@ -73,13 +70,13 @@ ui <- page_sidebar(
     card(
       card_header("Recurrence-Free Survival",
                   class = "bg-danger text-white fw-bold"),
-      plotlyOutput("RFS_plot"),
+      plotOutput("RFS_plot"),
       sliderInput("survyear_RFS", "Year", value = 1, min = 0, max = 5, step = 0.1)
     ),
     card(
       card_header("Overall Survival",
                   class = "bg-primary text-white fw-bold"),
-      plotlyOutput("OS_plot"),
+      plotOutput("OS_plot"),
       sliderInput("survyear_OS", "Year", value = 1, min = 0, max = 5, step = 0.1)
     )
   ),
@@ -134,12 +131,12 @@ server <- function(input, output, session) {
   RFS_fit_summ <- reactive({ summary(RFS_fit(), time = input$survyear_RFS) })
   OS_fit_summ  <- reactive({ summary(OS_fit(),  time = input$survyear_OS) })
 
-  output$RFS_plot <- renderPlotly({
+  output$RFS_plot <- renderPlot({
     req(user_df())
     surv_plot(RFS_fit(), input$survyear_RFS)
   })
 
-  output$OS_plot <- renderPlotly({
+  output$OS_plot <- renderPlot({
     req(user_df())
     surv_plot(OS_fit(), input$survyear_OS)
   })
